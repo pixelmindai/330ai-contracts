@@ -15,7 +15,7 @@ contract Platinum is ERC721 {
     constructor() ERC721("Platinum", "PLATINUM") {}
 
     /**
-     * @notice Mints Active Collector Membership NFT only 500 to be minted
+     * @notice Mints Platinum Membership NFT only 500 to be minted
      * @return _tokenId token id
      */
     function mint() external returns (uint256) {
