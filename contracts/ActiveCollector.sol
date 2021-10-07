@@ -15,7 +15,7 @@ contract ActiveCollector is ERC721 {
     constructor() ERC721("ActiveCollector", "ACTIVE") {}
 
     /**
-     * @notice Mints Active Collector Membership NFT only 500 to be minted
+     * @notice Mints Active Collector Membership NFT
      * @return _tokenId token id
      */
     function mint() external returns (uint256) {
