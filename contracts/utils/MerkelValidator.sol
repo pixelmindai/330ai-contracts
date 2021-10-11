@@ -25,6 +25,6 @@ contract MerkelValidator is IMerkleValidator {
     ) public view override {
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, data, isValid));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), "MerkleDistributor: Invalid proof");
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), "MerkelValidator: Invalid proof");
     }
 }
