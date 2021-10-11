@@ -8,7 +8,6 @@ import "./utils/MerkelValidator.sol";
 
 contract AwakeningSeries is ERC721, MerkelValidator, Ownable {
     uint256 private mintDeadline;
-    // using zero address for now
     string public baseTokenURI;
 
     using Counters for Counters.Counter;
