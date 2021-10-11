@@ -7,16 +7,16 @@ import "./IMerkleValidator.sol";
 contract MerkelValidator is IMerkleValidator {
     bytes32 public immutable override merkleRoot;
 
-    /// @param _merkleRoot Merkle root for the game
+    /// @param _merkleRoot Merkle root for user validation
     constructor(bytes32 _merkleRoot) {
         merkleRoot = _merkleRoot;
     }
 
-    /// @notice Responsible for validating player merkle proof
-    /// @param index Merkle Proof Player Index
+    /// @notice Responsible for validating user merkle proof
+    /// @param index Merkle Proof User Index
     /// @param data user specifc calldata to verify minting
     /// @param isValid Bool Flag
-    /// @param merkleProof Merkle proof of the player
+    /// @param merkleProof Merkle proof of the user
     function verify(
         uint256 index,
         bytes memory data,
