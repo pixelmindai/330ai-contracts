@@ -18,7 +18,7 @@ describe("Awakening Series", () => {
   const invalidData =
     "0x54d3cf5d4000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002c427079774443635573446e5562646a4741675534697636634232327a6a32596a3238456653685a70726a78760000000000000000000000000000000000000001";
 
-  // 100 mins
+  // 60 mins from the current timestamp
   const mintDeadline = 1634047750;
 
   // sample root for testing
@@ -52,7 +52,7 @@ describe("Awakening Series", () => {
   ];
 
   beforeEach(async () => {
-    const [deployer, user] = await ethers.getSigners();
+    const [deployer] = await ethers.getSigners();
 
     const seriesDeployer = new AwakeningSeries__factory(deployer);
     instance = await seriesDeployer.deploy(merkelRoot, mintDeadline, "https://meta.330.ai/01/");
