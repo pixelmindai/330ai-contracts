@@ -6,14 +6,14 @@ import "@openzeppelin/contracts@4.3.3/access/Ownable.sol";
 import "@openzeppelin/contracts@4.3.3/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract TestTokenlyPass is ERC721, Ownable {
+contract CollectorPassG1 is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     uint public MAXSUPPLY;
     string public baseTokenUri;
     bytes32 immutable public root;
 
-    constructor(bytes32 merkleroot, string memory baseURI) ERC721("Test Tokenly Pass", "TTP") {
+    constructor(bytes32 merkleroot, string memory baseURI) ERC721("Pixelmind Collectors Pass G1", "PIXELMIND C.G1") {
         baseTokenUri = baseURI;
         MAXSUPPLY = 420;
         root = merkleroot;
