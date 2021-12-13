@@ -1,0 +1,17 @@
+name: "Run unit tests"
+
+on:
+  push:
+
+jobs:
+  release:
+    name: Generate new release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        id: run_tests
+        run: npm run test
