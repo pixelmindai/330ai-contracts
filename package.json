@@ -77,6 +77,8 @@
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.3.2"
+    "@openzeppelin/contracts": "^4.3.2",
+    "keccak256": "^1.0.3",
+    "merkletreejs": "^0.2.27"
   }
 }
