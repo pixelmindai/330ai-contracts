@@ -45,15 +45,11 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
         return _verify(_leaf(msg.sender), proof);
     }
 
-    function _leaf(address account)
-    internal pure returns (bytes32)
-    {
+    function _leaf(address account) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(account));
     }
 
-    function _verify(bytes32 leaf, bytes32[] memory proof)
-    internal view returns (bool)
-    {
+    function _verify(bytes32 leaf, bytes32[] memory proof) internal view returns (bool) {
         return MerkleProof.verify(proof, root, leaf);
     }
 }
