@@ -31,25 +31,18 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
         return baseTokenURI;
     }
 
+    function redeem(bytes32[] calldata proof) external {
+        require(_tokenIds.current() + 1 < maxSupply, "There are no more passes to redeem");
+        require(ERC721.balanceOf(msg.sender) < 1, "User already has a pass");
+        require(checkRedeem(proof), "Invalid merkle proof");
 
-    function redeem(address account, bytes32[] calldata proof)
-    external
-    {
-        require(_verify(_leaf(account), proof), "Invalid merkle proof");
-        require(ERC721.balanceOf(account) < 1, "User already has a pass");
-        require(_tokenIdCounter.current() + 1 < MAXSUPPLY, "There are no more passes to redeem");  
-        
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(account, tokenId);
+        uint256 tokenId = _tokenIds.current();
+        _tokenIds.increment();
+        _safeMint(msg.sender, tokenId);
     }
 
-    function checkRedeem(address account, bytes32[] calldata proof) public view returns (bool){
-        require(_verify(_leaf(account), proof), "Invalid merkle proof");
-        require(ERC721.balanceOf(account) < 1, "User already has a pass");
-        require(_tokenIdCounter.current() + 1 < MAXSUPPLY, "There are no more passes to redeem");  
-       
-        return _verify(_leaf(account), proof);
+    function checkRedeem(bytes32[] calldata proof) public view returns (bool) {
+        return _verify(_leaf(msg.sender), proof);
     }
 
     function _leaf(address account)
