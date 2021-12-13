@@ -8,16 +8,21 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract CollectorPassG1 is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
-    uint public MAXSUPPLY;
-    string public baseTokenUri;
-    bytes32 immutable public root;
+    Counters.Counter private _tokenIds;
+    string public baseTokenURI;
+    uint256 public immutable maxSupply;
+    bytes32 public immutable root;
 
-    constructor(bytes32 merkleroot, string memory baseURI) ERC721("Pixelmind Collectors Pass G1", "PIXELMIND C.G1") {
-        baseTokenUri = baseURI;
-        MAXSUPPLY = 420;
+    constructor(
+        string memory baseURI,
+        uint256 maxTokens,
+        bytes32 merkleroot
+    ) ERC721("Pixelmind Collectors Pass G1", "PIXELMIND C.G1") {
+        baseTokenURI = baseURI;
+        maxSupply = maxTokens;
         root = merkleroot;
-    
+    }
+
     }
 
     function safeMint(address to) public onlyOwner {
