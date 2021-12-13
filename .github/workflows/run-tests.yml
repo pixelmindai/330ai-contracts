@@ -7,10 +7,16 @@ jobs:
   release:
     name: Generate new release
     runs-on: ubuntu-latest
+    env:
+      working-directory: .
 
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
+
+      - name: Npm Install
+        run: npm i --save
+        working-directory: ${{ env.working-directory }}
 
       - name: Run tests
         id: run_tests
