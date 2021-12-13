@@ -23,12 +23,12 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
         root = merkleroot;
     }
 
+    function setBaseURI(string memory baseURI) external onlyOwner {
+        baseTokenURI = baseURI;
     }
 
-    function safeMint(address to) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseTokenURI;
     }
 
 
