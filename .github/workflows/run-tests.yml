@@ -16,6 +16,12 @@ jobs:
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo INFURA_API_KEY=${{ secrets.INFURA_API_KEY }} >> .env
+          echo MNEMONIC=${{ secrets.MNEMONIC }} >> .env
+
       - name: Yarn Install
         run: yarn install
 
