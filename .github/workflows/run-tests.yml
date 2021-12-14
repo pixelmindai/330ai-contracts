@@ -7,8 +7,6 @@ jobs:
   release:
     name: Generate new release
     runs-on: ubuntu-latest
-    env:
-      working-directory: .
 
     steps:
       - name: Clone repo
@@ -18,17 +16,8 @@ jobs:
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: "16"
-
-      - name: Node Version
-        run: node --version
-
       - name: Npm Install
-        run: npm i --save
-        working-directory: ${{ env.working-directory }}
+        run: npm i
 
       - name: Run tests
         id: run_tests
