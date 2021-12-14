@@ -16,9 +16,15 @@ jobs:
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
-      - name: Npm Install
-        run: npm i
+      - name: Yarn Install
+        run: yarn install
+
+      - name: Yarn Compile
+        run: yarn compile
+
+      - name: Yarn Typechain
+        run: yarn typechain
 
       - name: Run tests
         id: run_tests
-        run: npm run test
+        run: yarn test
