@@ -10,15 +10,18 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     string public baseTokenURI;
+    string public _tokenURI;
     uint256 public immutable maxSupply;
     bytes32 public immutable root;
 
     constructor(
         string memory baseURI,
+        string memory tokenSegmentURI,
         uint256 maxTokens,
         bytes32 merkleroot
     ) ERC721("Pixelmind Collectors Pass G1", "PIXELMIND C.G1") {
         baseTokenURI = baseURI;
+        _tokenURI = tokenSegmentURI;
         maxSupply = maxTokens;
         root = merkleroot;
     }
@@ -29,6 +32,13 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, _tokenURI)) : "";
     }
 
     function redeem(bytes32[] calldata proof) external {
