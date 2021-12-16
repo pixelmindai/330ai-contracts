@@ -106,7 +106,9 @@ describe("CollectorPassG1", () => {
     it("correctly validates 'invalid' data blocks", async () => {
       for (const a of addrsInvalid) {
         const k = keccak256(a).toString("hex");
-        assert.isNotOk(await collectorPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k]));
+        await expect(collectorPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
+          "Invalid merkle proof",
+        );
       }
     });
   });
