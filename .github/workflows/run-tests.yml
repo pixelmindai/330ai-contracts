@@ -7,8 +7,6 @@ jobs:
   release:
     name: Generate new release
     runs-on: ubuntu-latest
-    env:
-      working-directory: .
 
     steps:
       - name: Clone repo
@@ -18,18 +16,21 @@ jobs:
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: "16"
+      - name: Create .env file
+        run: |
+          touch .env
+          echo INFURA_API_KEY=${{ secrets.INFURA_API_KEY }} >> .env
+          echo MNEMONIC=${{ secrets.MNEMONIC }} >> .env
 
-      - name: Node Version
-        run: node --version
+      - name: Yarn Install
+        run: yarn install
 
-      - name: Npm Install
-        run: npm i --save
-        working-directory: ${{ env.working-directory }}
+      - name: Yarn Compile
+        run: yarn compile
+
+      - name: Yarn Typechain
+        run: yarn typechain
 
       - name: Run tests
         id: run_tests
-        run: npm run test
+        run: yarn test

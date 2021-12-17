@@ -2,23 +2,27 @@
 pragma solidity ^0.8.2;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract CollectorPassG1 is ERC721URIStorage, Ownable {
+contract CollectorPassG1 is ERC721URIStorage, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     string public baseTokenURI;
+    string public _tokenURI;
     uint256 public immutable maxSupply;
     bytes32 public immutable root;
 
     constructor(
         string memory baseURI,
+        string memory tokenSegmentURI,
         uint256 maxTokens,
         bytes32 merkleroot
     ) ERC721("Pixelmind Collectors Pass G1", "PIXELMIND C.G1") {
         baseTokenURI = baseURI;
+        _tokenURI = tokenSegmentURI;
         maxSupply = maxTokens;
         root = merkleroot;
     }
@@ -31,18 +35,44 @@ contract CollectorPassG1 is ERC721URIStorage, Ownable {
         return baseTokenURI;
     }
 
-    function redeem(bytes32[] calldata proof) external {
-        require(_tokenIds.current() + 1 < maxSupply, "There are no more passes to redeem");
-        require(ERC721.balanceOf(msg.sender) < 1, "User already has a pass");
-        require(checkRedeem(proof), "Invalid merkle proof");
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, _tokenURI)) : "";
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    modifier canRedeem(bytes32[] calldata proof) {
+        require(_verify(_leaf(msg.sender), proof), "Invalid merkle proof");
+        require(ERC721.balanceOf(msg.sender) < 1, "User already has a pass");
+        require(_tokenIds.current() + 1 < maxSupply, "There are no more passes to redeem");
+        _;
+    }
+
+    function redeem(bytes32[] calldata proof) external canRedeem(proof) {
         uint256 tokenId = _tokenIds.current();
         _tokenIds.increment();
         _safeMint(msg.sender, tokenId);
     }
 
-    function checkRedeem(bytes32[] calldata proof) public view returns (bool) {
-        return _verify(_leaf(msg.sender), proof);
+    function checkRedeem(bytes32[] calldata proof) external view canRedeem(proof) returns (bool) {
+        return true;
     }
 
     function _leaf(address account) internal pure returns (bytes32) {

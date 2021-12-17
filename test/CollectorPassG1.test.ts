@@ -16,8 +16,9 @@ interface MerkleGenerateOutput {
 let MERKLE_ROOT: string;
 
 const MAX_SUPPLY: number = 6;
-const TOKEN_URI: string = "https://meta.330.ai/01/";
-const TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/01/";
+const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/";
+const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/";
+const TOKEN_SEGMENT_URI: string = "CollectorPassG1.json";
 
 let collectorPassG1: Contract;
 let contractOwnerG1: SignerWithAddress;
@@ -70,9 +71,9 @@ describe("CollectorPassG1", () => {
 
   beforeEach(async () => {
     const CollectorPassG1 = await ethers.getContractFactory("CollectorPassG1");
-    collectorPassG1 = await CollectorPassG1.deploy(TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    collectorPassG1 = await CollectorPassG1.deploy(BASE_TOKEN_URI, TOKEN_SEGMENT_URI, MAX_SUPPLY, MERKLE_ROOT);
     await collectorPassG1.deployed();
-    collectorPassG2 = await CollectorPassG1.deploy(TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    collectorPassG2 = await CollectorPassG1.deploy(BASE_TOKEN_URI, TOKEN_SEGMENT_URI, MAX_SUPPLY, MERKLE_ROOT);
     await collectorPassG2.deployed();
   });
 
@@ -84,10 +85,13 @@ describe("CollectorPassG1", () => {
       expect(await collectorPassG1.owner()).to.equal(contractOwnerG1.address);
     });
     it("deploys with correct max supply", async () => {
-      expect(await collectorPassG1.baseTokenURI()).to.equal(TOKEN_URI);
+      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
     });
     it("deploys with correct base token uri", async () => {
-      expect(await collectorPassG1.baseTokenURI()).to.equal(TOKEN_URI);
+      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
+    });
+    it("deploys with correct token segment uri", async () => {
+      expect(await collectorPassG1._tokenURI()).to.equal(TOKEN_SEGMENT_URI);
     });
     it("deploys with correct merkle root", async () => {
       expect(await collectorPassG1.root()).to.equal(MERKLE_ROOT);
@@ -105,7 +109,9 @@ describe("CollectorPassG1", () => {
     it("correctly validates 'invalid' data blocks", async () => {
       for (const a of addrsInvalid) {
         const k = keccak256(a).toString("hex");
-        assert.isNotOk(await collectorPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k]));
+        await expect(collectorPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
+          "Invalid merkle proof",
+        );
       }
     });
   });
@@ -150,12 +156,12 @@ describe("CollectorPassG1", () => {
 
   describe("has working metadata", () => {
     it("allows contract owner to update base uri", async () => {
-      await collectorPassG1.setBaseURI(TOKEN_URI_UPDATED);
-      expect(await collectorPassG1.baseTokenURI()).to.not.equal(TOKEN_URI);
-      expect(await collectorPassG1.baseTokenURI()).to.equal(TOKEN_URI_UPDATED);
+      await collectorPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
+      expect(await collectorPassG1.baseTokenURI()).to.not.equal(BASE_TOKEN_URI);
+      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI_UPDATED);
     });
     it("only allows contract owner to update base uri", async () => {
-      await expect(collectorPassG1.connect(addrs[0]).setBaseURI(TOKEN_URI_UPDATED)).to.be.revertedWith(
+      await expect(collectorPassG1.connect(addrs[0]).setBaseURI(BASE_TOKEN_URI_UPDATED)).to.be.revertedWith(
         "Ownable: caller is not the owner",
       );
     });
@@ -170,7 +176,7 @@ describe("CollectorPassG1", () => {
         return x.event == "Transfer";
       })[0];
       const tokenId = transfer ? (transfer.args ? transfer.args[2] : 0) : 0;
-      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(TOKEN_URI + tokenId);
+      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(BASE_TOKEN_URI + TOKEN_SEGMENT_URI);
     });
     it("generates correct token uri after updating base uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
@@ -183,8 +189,41 @@ describe("CollectorPassG1", () => {
         return x.event == "Transfer";
       })[0];
       const tokenId = transfer ? (transfer.args ? transfer.args[2] : 0) : 0;
-      await collectorPassG1.setBaseURI(TOKEN_URI_UPDATED);
-      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(TOKEN_URI_UPDATED + tokenId);
+      await collectorPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
+      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(
+        BASE_TOKEN_URI_UPDATED + TOKEN_SEGMENT_URI,
+      );
+    });
+  });
+
+  describe("can be enumerated", () => {
+    it("returns correct total supply", async () => {
+      for (const [i, a] of addrs.slice(0, 3).entries()) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+        expect(await collectorPassG1.totalSupply()).to.equal(i + 1);
+      }
+    });
+    it("returns correct token by index", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      for (const [i, _] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
+        expect(await collectorPassG1.tokenByIndex(i)).to.equal(i);
+      }
+    });
+    it("returns correct token of owner by index", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY - 1).reverse()) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      for (const [i, a] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
+        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 2 - i);
+      }
     });
   });
 });
