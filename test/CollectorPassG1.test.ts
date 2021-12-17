@@ -141,7 +141,7 @@ describe("CollectorPassG1", () => {
       }
     });
     it("does not allow minting beyond max supply", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
@@ -153,7 +153,7 @@ describe("CollectorPassG1", () => {
       );
     });
     it("does not leak supply", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
@@ -219,7 +219,7 @@ describe("CollectorPassG1", () => {
       }
     });
     it("returns correct token by index", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
@@ -229,13 +229,13 @@ describe("CollectorPassG1", () => {
       }
     });
     it("returns correct token of owner by index", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1).reverse()) {
+      for (const a of addrs.slice(0, MAX_SUPPLY).reverse()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
       }
-      for (const [i, a] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
-        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 2 - i);
+      for (const [i, a] of addrs.slice(0, MAX_SUPPLY).entries()) {
+        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i);
       }
     });
   });
