@@ -84,14 +84,14 @@ describe("CollectorPassG1", () => {
     it("deploys with correct owner", async () => {
       expect(await collectorPassG1.owner()).to.equal(contractOwnerG1.address);
     });
-    it("deploys with correct max supply", async () => {
-      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
-    });
     it("deploys with correct base token uri", async () => {
       expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
     });
     it("deploys with correct token segment uri", async () => {
       expect(await collectorPassG1._tokenURI()).to.equal(TOKEN_SEGMENT_URI);
+    });
+    it("deploys with correct max supply", async () => {
+      expect(await collectorPassG1.maxSupply()).to.equal(MAX_SUPPLY);
     });
     it("deploys with correct merkle root", async () => {
       expect(await collectorPassG1.root()).to.equal(MERKLE_ROOT);
