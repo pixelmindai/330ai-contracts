@@ -16,7 +16,7 @@ interface MerkleGenerateOutput {
 let MERKLE_ROOT: string;
 
 const MAX_SUPPLY: number = 6;
-const BASE_TOKEN_URI: string = "https://meta.330.ai/api/v1/metadata/";
+const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/";
 const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/";
 const TOKEN_SEGMENT_URI: string = "CollectorPassG1.json";
 
