@@ -84,14 +84,14 @@ describe("CollectorPassG1", () => {
     it("deploys with correct owner", async () => {
       expect(await collectorPassG1.owner()).to.equal(contractOwnerG1.address);
     });
-    it("deploys with correct max supply", async () => {
-      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
-    });
     it("deploys with correct base token uri", async () => {
       expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
     });
     it("deploys with correct token segment uri", async () => {
       expect(await collectorPassG1._tokenURI()).to.equal(TOKEN_SEGMENT_URI);
+    });
+    it("deploys with correct max supply", async () => {
+      expect(await collectorPassG1.maxSupply()).to.equal(MAX_SUPPLY);
     });
     it("deploys with correct merkle root", async () => {
       expect(await collectorPassG1.root()).to.equal(MERKLE_ROOT);
@@ -141,7 +141,7 @@ describe("CollectorPassG1", () => {
       }
     });
     it("does not allow minting beyond max supply", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
@@ -151,6 +151,19 @@ describe("CollectorPassG1", () => {
       await expect(collectorPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
         "There are no more passes to redeem",
       );
+    });
+    it("does not leak supply", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
+      const proof = merkleGenerateOutput.proof[k];
+      await expect(collectorPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
+        "There are no more passes to redeem",
+      );
+      expect(await collectorPassG1.totalSupply()).to.equal(MAX_SUPPLY);
     });
   });
 
@@ -206,7 +219,7 @@ describe("CollectorPassG1", () => {
       }
     });
     it("returns correct token by index", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+      for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
@@ -216,13 +229,13 @@ describe("CollectorPassG1", () => {
       }
     });
     it("returns correct token of owner by index", async () => {
-      for (const a of addrs.slice(0, MAX_SUPPLY - 1).reverse()) {
+      for (const a of addrs.slice(0, MAX_SUPPLY).reverse()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         await collectorPassG1.connect(a).redeem(proof);
       }
-      for (const [i, a] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
-        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 2 - i);
+      for (const [i, a] of addrs.slice(0, MAX_SUPPLY).entries()) {
+        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i);
       }
     });
   });

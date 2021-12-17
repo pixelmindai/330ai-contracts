@@ -61,7 +61,7 @@ contract CollectorPassG1 is ERC721URIStorage, ERC721Enumerable, Ownable {
     modifier canRedeem(bytes32[] calldata proof) {
         require(_verify(_leaf(msg.sender), proof), "Invalid merkle proof");
         require(ERC721.balanceOf(msg.sender) < 1, "User already has a pass");
-        require(_tokenIds.current() + 1 < maxSupply, "There are no more passes to redeem");
+        require(totalSupply() < maxSupply, "There are no more passes to redeem");
         _;
     }
 
