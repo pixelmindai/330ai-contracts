@@ -195,4 +195,35 @@ describe("CollectorPassG1", () => {
       );
     });
   });
+
+  describe("can be enumerated", () => {
+    it("returns correct total supply", async () => {
+      for (const [i, a] of addrs.slice(0, 3).entries()) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+        expect(await collectorPassG1.totalSupply()).to.equal(i + 1);
+      }
+    });
+    it("returns correct token by index", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      for (const [i, _] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
+        expect(await collectorPassG1.tokenByIndex(i)).to.equal(i);
+      }
+    });
+    it("returns correct token of owner by index", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY - 1).reverse()) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      for (const [i, a] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
+        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 2 - i);
+      }
+    });
+  });
 });
