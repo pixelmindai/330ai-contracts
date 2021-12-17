@@ -152,6 +152,19 @@ describe("CollectorPassG1", () => {
         "There are no more passes to redeem",
       );
     });
+    it("does not leak supply", async () => {
+      for (const a of addrs.slice(0, MAX_SUPPLY - 1)) {
+        const k = keccak256(a.address).toString("hex");
+        const proof = merkleGenerateOutput.proof[k];
+        await collectorPassG1.connect(a).redeem(proof);
+      }
+      const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
+      const proof = merkleGenerateOutput.proof[k];
+      await expect(collectorPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
+        "There are no more passes to redeem",
+      );
+      expect(await collectorPassG1.totalSupply()).to.equal(MAX_SUPPLY);
+    });
   });
 
   describe("has working metadata", () => {
