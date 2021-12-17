@@ -59,30 +59,30 @@ describe("Awakening Series", () => {
   });
 
   describe("should allow users to mint", async () => {
-    it("makes sure the 1st verified account can mint", async () => {
-      const [deployer] = await ethers.getSigners();
-      await instance.mint(proofConfig[0][user1Data].index, proofConfig[0][user1Data].proof, user1Data);
-      const owner = await instance.ownerOf(0);
-      assert(owner === deployer.address);
-      const tokenUrl = await instance.tokenURI(0);
-      assert(tokenUrl == "https://meta.330.ai/01/0");
-    });
+    // it("makes sure the 1st verified account can mint", async () => {
+    //   const [deployer] = await ethers.getSigners();
+    //   await instance.mint(proofConfig[0][user1Data].index, proofConfig[0][user1Data].proof, user1Data);
+    //   const owner = await instance.ownerOf(0);
+    //   assert(owner === deployer.address);
+    //   const tokenUrl = await instance.tokenURI(0);
+    //   assert(tokenUrl == "https://meta.330.ai/01/0");
+    // });
 
-    it("makes sure the 2nd verified account can mint", async () => {
-      const [, user] = await ethers.getSigners();
-      await instance.mint(proofConfig[0][user1Data].index, proofConfig[0][user1Data].proof, user1Data);
-      await instance.connect(user).mint(proofConfig[1][user2Data].index, proofConfig[1][user2Data].proof, user2Data);
-      const owner = await instance.ownerOf(1);
-      assert(owner === user.address);
-      const tokenUrl = await instance.tokenURI(1);
-      assert(tokenUrl == "https://meta.330.ai/01/1");
-    });
+    // it("makes sure the 2nd verified account can mint", async () => {
+    //   const [, user] = await ethers.getSigners();
+    //   await instance.mint(proofConfig[0][user1Data].index, proofConfig[0][user1Data].proof, user1Data);
+    //   await instance.connect(user).mint(proofConfig[1][user2Data].index, proofConfig[1][user2Data].proof, user2Data);
+    //   const owner = await instance.ownerOf(1);
+    //   assert(owner === user.address);
+    //   const tokenUrl = await instance.tokenURI(1);
+    //   assert(tokenUrl == "https://meta.330.ai/01/1");
+    // });
 
-    it("reverts if invalid proof is provided", async () => {
-      await expect(
-        instance.mint(proofConfig[0][user1Data].index, proofConfig[2][invalidData].proof, invalidData),
-      ).to.be.revertedWith("MerkelValidator: Invalid proof");
-    });
+    // it("reverts if invalid proof is provided", async () => {
+    //   await expect(
+    //     instance.mint(proofConfig[0][user1Data].index, proofConfig[2][invalidData].proof, invalidData),
+    //   ).to.be.revertedWith("MerkelValidator: Invalid proof");
+    // });
 
     it("reverts if mint deadline is passed", async () => {
       const blockNum = await ethers.provider.getBlockNumber();
