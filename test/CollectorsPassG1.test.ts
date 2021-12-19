@@ -16,13 +16,13 @@ interface MerkleGenerateOutput {
 let MERKLE_ROOT: string;
 
 const MAX_SUPPLY: number = 6;
-const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/CollectorPassG1/";
-const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/CollectorPassG1/";
+const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/CollectorsPassG1/";
+const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/CollectorsPassG1/";
 
-let collectorPassG1: Contract;
+let collectorsPassG1: Contract;
 let contractOwnerG1: SignerWithAddress;
 
-let collectorPassG2: Contract;
+let collectorsPassG2: Contract;
 
 let addrs: SignerWithAddress[];
 let addrsInvalid: string[];
@@ -30,7 +30,7 @@ let addrsInvalid: string[];
 let merkleGenerateOutput: MerkleGenerateOutput;
 let merkleGenerateOutputInvalid: MerkleGenerateOutput;
 
-describe("CollectorPassG1", () => {
+describe("CollectorsPassG1", () => {
   before(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     [contractOwnerG1, ...addrs] = await ethers.getSigners();
@@ -69,28 +69,28 @@ describe("CollectorPassG1", () => {
   });
 
   beforeEach(async () => {
-    const CollectorPassG1 = await ethers.getContractFactory("CollectorPassG1");
-    collectorPassG1 = await CollectorPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
-    await collectorPassG1.deployed();
-    collectorPassG2 = await CollectorPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
-    await collectorPassG2.deployed();
+    const CollectorsPassG1 = await ethers.getContractFactory("CollectorsPassG1");
+    collectorsPassG1 = await CollectorsPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    await collectorsPassG1.deployed();
+    collectorsPassG2 = await CollectorsPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    await collectorsPassG2.deployed();
   });
 
   describe("deploys correctly", () => {
     it("deploys", async () => {
-      assert.isOk(collectorPassG1.address);
+      assert.isOk(collectorsPassG1.address);
     });
     it("deploys with correct owner", async () => {
-      expect(await collectorPassG1.owner()).to.equal(contractOwnerG1.address);
+      expect(await collectorsPassG1.owner()).to.equal(contractOwnerG1.address);
     });
     it("deploys with correct base token uri", async () => {
-      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
+      expect(await collectorsPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI);
     });
     it("deploys with correct max supply", async () => {
-      expect(await collectorPassG1.maxSupply()).to.equal(MAX_SUPPLY);
+      expect(await collectorsPassG1.maxSupply()).to.equal(MAX_SUPPLY);
     });
     it("deploys with correct merkle root", async () => {
-      expect(await collectorPassG1.root()).to.equal(MERKLE_ROOT);
+      expect(await collectorsPassG1.root()).to.equal(MERKLE_ROOT);
     });
   });
 
@@ -99,13 +99,13 @@ describe("CollectorPassG1", () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await assert.isOk(collectorPassG1.connect(a.address).checkRedeem(proof));
+        await assert.isOk(collectorsPassG1.connect(a.address).checkRedeem(proof));
       }
     });
     it("correctly validates 'invalid' data blocks", async () => {
       for (const a of addrsInvalid) {
         const k = keccak256(a).toString("hex");
-        await expect(collectorPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
+        await expect(collectorsPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
           "Invalid merkle proof",
         );
       }
@@ -117,34 +117,34 @@ describe("CollectorPassG1", () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        assert.isOk(await collectorPassG1.connect(a).redeem(proof));
+        assert.isOk(await collectorsPassG1.connect(a).redeem(proof));
       }
     });
     it("allows whitelisted accounts to mint only once", async () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        assert.isOk(await collectorPassG1.connect(a).redeem(proof));
-        await expect(collectorPassG1.connect(a).redeem(proof)).to.be.revertedWith("User already has a pass");
+        assert.isOk(await collectorsPassG1.connect(a).redeem(proof));
+        await expect(collectorsPassG1.connect(a).redeem(proof)).to.be.revertedWith("User already has a pass");
       }
     });
     it("allows whitelisted accounts to mint in multiple groups", async () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
-        assert.isOk(await collectorPassG2.connect(a).redeem(proof));
+        await collectorsPassG1.connect(a).redeem(proof);
+        assert.isOk(await collectorsPassG2.connect(a).redeem(proof));
       }
     });
     it("does not allow minting beyond max supply", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).redeem(proof);
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
+      await expect(collectorsPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
         "There are no more passes to redeem",
       );
     });
@@ -152,25 +152,25 @@ describe("CollectorPassG1", () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).redeem(proof);
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
+      await expect(collectorsPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
         "There are no more passes to redeem",
       );
-      expect(await collectorPassG1.totalSupply()).to.equal(MAX_SUPPLY);
+      expect(await collectorsPassG1.totalSupply()).to.equal(MAX_SUPPLY);
     });
   });
 
   describe("has working metadata", () => {
     it("allows contract owner to update base uri", async () => {
-      await collectorPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
-      expect(await collectorPassG1.baseTokenURI()).to.not.equal(BASE_TOKEN_URI);
-      expect(await collectorPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI_UPDATED);
+      await collectorsPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
+      expect(await collectorsPassG1.baseTokenURI()).to.not.equal(BASE_TOKEN_URI);
+      expect(await collectorsPassG1.baseTokenURI()).to.equal(BASE_TOKEN_URI_UPDATED);
     });
     it("only allows contract owner to update base uri", async () => {
-      await expect(collectorPassG1.connect(addrs[0]).setBaseURI(BASE_TOKEN_URI_UPDATED)).to.be.revertedWith(
+      await expect(collectorsPassG1.connect(addrs[0]).setBaseURI(BASE_TOKEN_URI_UPDATED)).to.be.revertedWith(
         "Ownable: caller is not the owner",
       );
     });
@@ -178,28 +178,28 @@ describe("CollectorPassG1", () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
 
-      const tx = await collectorPassG1.connect(addrs[0]).redeem(proof);
+      const tx = await collectorsPassG1.connect(addrs[0]).redeem(proof);
       const receipt: ContractReceipt = await tx.wait();
 
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
       })[0];
       const tokenId = transfer ? (transfer.args ? transfer.args[2] : 0) : 0;
-      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(BASE_TOKEN_URI + tokenId);
+      expect(await collectorsPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(BASE_TOKEN_URI + tokenId);
     });
     it("generates correct token uri after updating base uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
 
-      const tx = await collectorPassG1.connect(addrs[0]).redeem(proof);
+      const tx = await collectorsPassG1.connect(addrs[0]).redeem(proof);
       const receipt: ContractReceipt = await tx.wait();
 
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
       })[0];
       const tokenId = transfer ? (transfer.args ? transfer.args[2] : 0) : 0;
-      await collectorPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
-      expect(await collectorPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(BASE_TOKEN_URI_UPDATED + tokenId);
+      await collectorsPassG1.setBaseURI(BASE_TOKEN_URI_UPDATED);
+      expect(await collectorsPassG1.connect(addrs[0]).tokenURI(tokenId)).to.equal(BASE_TOKEN_URI_UPDATED + tokenId);
     });
   });
 
@@ -208,28 +208,28 @@ describe("CollectorPassG1", () => {
       for (const [i, a] of addrs.slice(0, 3).entries()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
-        expect(await collectorPassG1.totalSupply()).to.equal(i + 1);
+        await collectorsPassG1.connect(a).redeem(proof);
+        expect(await collectorsPassG1.totalSupply()).to.equal(i + 1);
       }
     });
     it("returns correct token by index", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).redeem(proof);
       }
       for (const [i, _] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
-        expect(await collectorPassG1.tokenByIndex(i)).to.equal(i);
+        expect(await collectorsPassG1.tokenByIndex(i)).to.equal(i);
       }
     });
     it("returns correct token of owner by index", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY).reverse()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).redeem(proof);
       }
       for (const [i, a] of addrs.slice(0, MAX_SUPPLY).entries()) {
-        expect(await collectorPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i);
+        expect(await collectorsPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i);
       }
     });
   });
