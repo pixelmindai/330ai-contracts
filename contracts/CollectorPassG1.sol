@@ -22,6 +22,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, Ownable {
         baseTokenURI = baseURI;
         maxSupply = maxTokens;
         root = merkleroot;
+        _tokenIds.increment();
     }
 
     function setBaseURI(string memory baseURI) external onlyOwner {

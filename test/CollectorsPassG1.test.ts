@@ -219,7 +219,8 @@ describe("CollectorsPassG1", () => {
         await collectorsPassG1.connect(a).redeem(proof);
       }
       for (const [i, _] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
-        expect(await collectorsPassG1.tokenByIndex(i)).to.equal(i);
+        // (i + 1) => because contract counter '_tokenIds' starts at 1
+        expect(await collectorsPassG1.tokenByIndex(i)).to.equal(i + 1);
       }
     });
     it("returns correct token of owner by index", async () => {
@@ -229,7 +230,8 @@ describe("CollectorsPassG1", () => {
         await collectorsPassG1.connect(a).redeem(proof);
       }
       for (const [i, a] of addrs.slice(0, MAX_SUPPLY).entries()) {
-        expect(await collectorsPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i);
+        // (... - i + 1) => because contract counter '_tokenIds' starts at 1
+        expect(await collectorsPassG1.tokenOfOwnerByIndex(a.address, 0)).to.equal(MAX_SUPPLY - 1 - i + 1);
       }
     });
   });
