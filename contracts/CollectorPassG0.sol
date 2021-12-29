@@ -53,10 +53,14 @@ contract CollectorsPassG0 is ERC721URIStorage, ERC721Enumerable, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
+    error InvalidMerkleProof(address caller);
+    error PassAlreadyClaimed();
+    error MaxSupplyReached();
+
     modifier canRedeem(bytes32[] calldata proof) {
-        require(_verify(_leaf(msg.sender), proof), "Invalid merkle proof");
-        require(ERC721.balanceOf(msg.sender) < 1, "User already has a pass");
-        require(totalSupply() < maxSupply, "There are no more passes to redeem");
+        if (!_verify(_leaf(msg.sender), proof)) revert InvalidMerkleProof({ caller: msg.sender });
+        if (ERC721.balanceOf(msg.sender) > 0) revert PassAlreadyClaimed();
+        if (totalSupply() >= maxSupply) revert MaxSupplyReached();
         _;
     }
 

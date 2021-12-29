@@ -106,7 +106,7 @@ describe("CollectorsPassG0", () => {
       for (const a of addrsInvalid) {
         const k = keccak256(a).toString("hex");
         await expect(collectorsPassG0.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
-          "Invalid merkle proof",
+          "InvalidMerkleProof",
         );
       }
     });
@@ -125,7 +125,7 @@ describe("CollectorsPassG0", () => {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
         assert.isOk(await collectorsPassG0.connect(a).redeem(proof));
-        await expect(collectorsPassG0.connect(a).redeem(proof)).to.be.revertedWith("User already has a pass");
+        await expect(collectorsPassG0.connect(a).redeem(proof)).to.be.revertedWith("PassAlreadyClaimed");
       }
     });
     it("allows whitelisted accounts to mint in multiple groups", async () => {
@@ -144,9 +144,7 @@ describe("CollectorsPassG0", () => {
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorsPassG0.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
-        "There are no more passes to redeem",
-      );
+      await expect(collectorsPassG0.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith("MaxSupplyReached");
     });
     it("does not leak supply", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
@@ -156,9 +154,7 @@ describe("CollectorsPassG0", () => {
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorsPassG0.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith(
-        "There are no more passes to redeem",
-      );
+      await expect(collectorsPassG0.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith("MaxSupplyReached");
       expect(await collectorsPassG0.totalSupply()).to.equal(MAX_SUPPLY);
     });
   });
