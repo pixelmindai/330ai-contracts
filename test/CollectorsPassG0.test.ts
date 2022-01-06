@@ -20,7 +20,7 @@ const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/Col
 const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/CollectorsPassG0/";
 
 let collectorsPassG0: Contract;
-let contractOwnerG1: SignerWithAddress;
+let contractOwnerG0: SignerWithAddress;
 
 let collectorsPassG1: Contract;
 
@@ -33,7 +33,7 @@ let merkleGenerateOutputInvalid: MerkleGenerateOutput;
 describe("CollectorsPassG0", () => {
   before(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    [contractOwnerG1, ...addrs] = await ethers.getSigners();
+    [contractOwnerG0, ...addrs] = await ethers.getSigners();
 
     // valid Merkle tree
     const pubKeys = addrs.slice(0, MAX_SUPPLY + 1).map(a => a.address);
@@ -81,7 +81,7 @@ describe("CollectorsPassG0", () => {
       assert.isOk(collectorsPassG0.address);
     });
     it("deploys with correct owner", async () => {
-      expect(await collectorsPassG0.owner()).to.equal(contractOwnerG1.address);
+      expect(await collectorsPassG0.owner()).to.equal(contractOwnerG0.address);
     });
     it("deploys with correct base token uri", async () => {
       expect(await collectorsPassG0.baseTokenURI()).to.equal(BASE_TOKEN_URI);
