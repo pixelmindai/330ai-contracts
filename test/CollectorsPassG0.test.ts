@@ -177,10 +177,8 @@ describe("CollectorsPassG0", () => {
     it("generates correct token uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-
       const tx = await collectorsPassG0.connect(addrs[0]).redeem(proof);
       const receipt: ContractReceipt = await tx.wait();
-
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
       })[0];
@@ -190,10 +188,8 @@ describe("CollectorsPassG0", () => {
     it("generates correct token uri after updating base uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-
       const tx = await collectorsPassG0.connect(addrs[0]).redeem(proof);
       const receipt: ContractReceipt = await tx.wait();
-
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
       })[0];
