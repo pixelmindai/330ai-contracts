@@ -2,7 +2,7 @@ import { Contract, ContractReceipt } from "@ethersproject/contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect, assert } from "chai";
 import { ethers } from "hardhat";
-
+import { BigNumber } from "ethers";
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
 
@@ -19,8 +19,14 @@ const MAX_SUPPLY: number = 6;
 const BASE_TOKEN_URI: string = "https://backend.pixelmind.ai/api/v1/metadata/CollectorsPassG1/";
 const BASE_TOKEN_URI_UPDATED: string = "https://meta.pixelmind.ai/api/v1/metadata/CollectorsPassG2/";
 
+const MINT_PRICE_ETHER: BigNumber = ethers.utils.parseEther("0.1");
+const WHITELIST_MINT_NOT_BEFORE: number = 1642055136;
+const WHITELIST_MINT_DURATION: number = 24 * 60 * 60;
+
 let collectorsPassG1: Contract;
 let contractOwnerG1: SignerWithAddress;
+let contractBeneficiaryG1: SignerWithAddress;
+let contractAdminG1: SignerWithAddress;
 
 let collectorsPassG2: Contract;
 
@@ -33,7 +39,7 @@ let merkleGenerateOutputInvalid: MerkleGenerateOutput;
 describe("CollectorsPassG1", () => {
   before(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    [contractOwnerG1, ...addrs] = await ethers.getSigners();
+    [contractOwnerG1, contractBeneficiaryG1, contractAdminG1, ...addrs] = await ethers.getSigners();
 
     // valid Merkle tree
     const pubKeys = addrs.slice(0, MAX_SUPPLY + 1).map(a => a.address);
@@ -70,9 +76,27 @@ describe("CollectorsPassG1", () => {
 
   beforeEach(async () => {
     const CollectorsPassG1 = await ethers.getContractFactory("CollectorsPassG1");
-    collectorsPassG1 = await CollectorsPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    collectorsPassG1 = await CollectorsPassG1.deploy(
+      BASE_TOKEN_URI,
+      MAX_SUPPLY,
+      MERKLE_ROOT,
+      MINT_PRICE_ETHER,
+      WHITELIST_MINT_NOT_BEFORE,
+      WHITELIST_MINT_DURATION,
+      contractBeneficiaryG1.address,
+      contractAdminG1.address,
+    );
     await collectorsPassG1.deployed();
-    collectorsPassG2 = await CollectorsPassG1.deploy(BASE_TOKEN_URI, MAX_SUPPLY, MERKLE_ROOT);
+    collectorsPassG2 = await CollectorsPassG1.deploy(
+      BASE_TOKEN_URI,
+      MAX_SUPPLY,
+      MERKLE_ROOT,
+      MINT_PRICE_ETHER,
+      WHITELIST_MINT_NOT_BEFORE,
+      WHITELIST_MINT_DURATION,
+      contractBeneficiaryG1.address,
+      contractAdminG1.address,
+    );
     await collectorsPassG2.deployed();
   });
 
@@ -90,7 +114,7 @@ describe("CollectorsPassG1", () => {
       expect(await collectorsPassG1.maxSupply()).to.equal(MAX_SUPPLY);
     });
     it("deploys with correct merkle root", async () => {
-      expect(await collectorsPassG1.root()).to.equal(MERKLE_ROOT);
+      expect(await collectorsPassG1.merkleroot()).to.equal(MERKLE_ROOT);
     });
   });
 
@@ -99,15 +123,15 @@ describe("CollectorsPassG1", () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await assert.isOk(collectorsPassG1.connect(a.address).checkRedeem(proof));
+        await assert.isOk(collectorsPassG1.connect(a.address).checkWhitelistRedeem(proof));
       }
     });
     it("correctly validates 'invalid' data blocks", async () => {
       for (const a of addrsInvalid) {
         const k = keccak256(a).toString("hex");
-        await expect(collectorsPassG1.connect(a).checkRedeem(merkleGenerateOutputInvalid.proof[k])).to.be.revertedWith(
-          "InvalidMerkleProof",
-        );
+        await expect(
+          collectorsPassG1.connect(a).checkWhitelistRedeem(merkleGenerateOutputInvalid.proof[k]),
+        ).to.be.revertedWith("InvalidMerkleProof");
       }
     });
   });
@@ -117,44 +141,74 @@ describe("CollectorsPassG1", () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        assert.isOk(await collectorsPassG1.connect(a).redeem(proof));
+        assert.isOk(
+          await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+            value: MINT_PRICE_ETHER,
+          }),
+        );
       }
     });
     it("allows whitelisted accounts to mint only once", async () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        assert.isOk(await collectorsPassG1.connect(a).redeem(proof));
-        await expect(collectorsPassG1.connect(a).redeem(proof)).to.be.revertedWith("PassAlreadyClaimed");
+        assert.isOk(
+          await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+            value: MINT_PRICE_ETHER,
+          }),
+        );
+        await expect(
+          collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+            value: MINT_PRICE_ETHER,
+          }),
+        ).to.be.revertedWith("PassAlreadyClaimed");
       }
     });
     it("allows whitelisted accounts to mint in multiple groups", async () => {
       for (const a of addrs.slice(0, 3)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
-        assert.isOk(await collectorsPassG2.connect(a).redeem(proof));
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
+        assert.isOk(
+          await collectorsPassG2.connect(a).whitelistMintRedeem(proof, {
+            value: MINT_PRICE_ETHER,
+          }),
+        );
       }
     });
     it("does not allow minting beyond max supply", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorsPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith("MaxSupplyReached");
+      await expect(
+        collectorsPassG1.connect(addrs[MAX_SUPPLY]).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        }),
+      ).to.be.revertedWith("MaxSupplyReached");
     });
     it("does not leak supply", async () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
       }
       const k = keccak256(addrs[MAX_SUPPLY].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      await expect(collectorsPassG1.connect(addrs[MAX_SUPPLY]).redeem(proof)).to.be.revertedWith("MaxSupplyReached");
+      await expect(
+        collectorsPassG1.connect(addrs[MAX_SUPPLY]).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        }),
+      ).to.be.revertedWith("MaxSupplyReached");
       expect(await collectorsPassG1.totalSupply()).to.equal(MAX_SUPPLY);
     });
   });
@@ -173,7 +227,9 @@ describe("CollectorsPassG1", () => {
     it("generates correct token uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      const tx = await collectorsPassG1.connect(addrs[0]).redeem(proof);
+      const tx = await collectorsPassG1.connect(addrs[0]).whitelistMintRedeem(proof, {
+        value: MINT_PRICE_ETHER,
+      });
       const receipt: ContractReceipt = await tx.wait();
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
@@ -184,7 +240,9 @@ describe("CollectorsPassG1", () => {
     it("generates correct token uri after updating base uri", async () => {
       const k = keccak256(addrs[0].address).toString("hex");
       const proof = merkleGenerateOutput.proof[k];
-      const tx = await collectorsPassG1.connect(addrs[0]).redeem(proof);
+      const tx = await collectorsPassG1.connect(addrs[0]).whitelistMintRedeem(proof, {
+        value: MINT_PRICE_ETHER,
+      });
       const receipt: ContractReceipt = await tx.wait();
       const transfer = receipt.events?.filter(x => {
         return x.event == "Transfer";
@@ -200,7 +258,9 @@ describe("CollectorsPassG1", () => {
       for (const [i, a] of addrs.slice(0, 3).entries()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
         expect(await collectorsPassG1.totalSupply()).to.equal(i + 1);
       }
     });
@@ -208,7 +268,9 @@ describe("CollectorsPassG1", () => {
       for (const a of addrs.slice(0, MAX_SUPPLY)) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
       }
       for (const [i, _] of addrs.slice(0, MAX_SUPPLY - 1).entries()) {
         // (i + 1) => because contract counter '_tokenIds' starts at 1
@@ -219,7 +281,9 @@ describe("CollectorsPassG1", () => {
       for (const a of addrs.slice(0, MAX_SUPPLY).reverse()) {
         const k = keccak256(a.address).toString("hex");
         const proof = merkleGenerateOutput.proof[k];
-        await collectorsPassG1.connect(a).redeem(proof);
+        await collectorsPassG1.connect(a).whitelistMintRedeem(proof, {
+          value: MINT_PRICE_ETHER,
+        });
       }
       for (const [i, a] of addrs.slice(0, MAX_SUPPLY).entries()) {
         // (... - i + 1) => because contract counter '_tokenIds' starts at 1
