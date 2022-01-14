@@ -24,8 +24,6 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     // The address that is able to withdraw funds.
     address payable public immutable beneficiaryAddress;
-    // The address that is able to (un)pause contract and recover funds.
-    address payable public immutable adminRecoveryAddress;
     // The maximum number of tokens this contract can create.
     uint256 public immutable maxSupply;
     // The price set to mint a token in Wei; must represent at least 0.1 ETH.
@@ -131,11 +129,6 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         _;
     }
 
-    modifier onlyAdminRecovery() {
-        if (msg.sender != adminRecoveryAddress) revert SenderNotAdminRecovery();
-        _;
-    }
-
     // ============ Constructor ============
 
     constructor(
@@ -145,8 +138,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         uint256 mintPriceWei_,
         uint256 whitelistNotBeforeTime_,
         uint256 whitelistMintDurationSeconds,
-        address payable beneficiaryAddress_,
-        address payable adminRecoveryAddress_
+        address payable beneficiaryAddress_
     ) ERC721("Pixelmind Collector's Pass", "PX PASS") MerkleValidator(merkleroot_) {
         baseTokenURI = baseTokenURI_;
         maxSupply = maxSupply_;
@@ -154,7 +146,6 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         whitelistNotBeforeTime = whitelistNotBeforeTime_;
         whitelistMintEndTime = block.timestamp + whitelistMintDurationSeconds;
         beneficiaryAddress = beneficiaryAddress_;
-        adminRecoveryAddress = adminRecoveryAddress_;
         _tokenIds.increment();
     }
 
@@ -234,18 +225,18 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     // ============ Admin Functions ============
 
-    function pauseContract() external onlyAdminRecovery {
+    function pauseContract() external onlyOwner {
         _pause();
         emit Paused(msg.sender);
     }
 
-    function unpauseContract() external onlyAdminRecovery {
+    function unpauseContract() external onlyOwner {
         _unpause();
         emit Unpaused(msg.sender);
     }
 
-    function recoverEth() external onlyAdminRecovery whenPaused {
-        beneficiaryAddress.transfer(address(this).balance);
+    function recoverEth() external onlyOwner whenPaused {
+        payable(owner()).transfer(address(this).balance);
     }
 
     // ============ Miscellaneous Public and External ============
