@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./MerkleValidator.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./Convert.sol";
 
 contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator, Ownable, Pausable {
     // Use OpenZeppelin's Counters to generate token ids.
