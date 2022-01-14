@@ -17,8 +17,6 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     // The minimum amount of ETH for setting valid token price; 0.1 ETH.
     uint256 public constant MIN_MINT_PRICE_WEI = 100000000000000000;
-    // Allows external read `getVersion()` to return a version for the token claim.
-    uint256 public constant COLLECTORS_PASS_VERSION = 2;
 
     // ============ Immutable Storage ============
 
@@ -252,10 +250,5 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         returns (bool)
     {
         return true;
-    }
-
-    // Returns the version of the deployed contract.
-    function getVersion() external pure returns (uint256 version) {
-        version = COLLECTORS_PASS_VERSION;
     }
 }
