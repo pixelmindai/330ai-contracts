@@ -96,8 +96,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     }
 
     modifier whitelistMintEnded() {
-        if (whitelistNotBeforeTime < block.timestamp && block.timestamp < whitelistMintEndTime)
-            revert WhitelistMintNotEnded();
+        if (block.timestamp < whitelistMintEndTime) revert WhitelistMintNotEnded();
         _;
     }
 
