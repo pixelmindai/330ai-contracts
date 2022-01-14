@@ -34,7 +34,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     /**
      * In order to open minting to anyone, contract owner must
-     * first call `setOpenMintActive(bool active)`, which sets `_openMintActive`.
+     * first call `setOpenMintActive()`, which sets `_openMintActive`.
      */
     bool private _openMintActive;
     /**
