@@ -59,6 +59,8 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     // ============ Errors ============
 
+    /// Mint price set too low.
+    error MintPriceTooLow();
     /// Caller has already claimed pass.
     error PassAlreadyClaimed();
     /// No pass available. Maximum supply has been reached.
@@ -79,6 +81,8 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     error EndAllMintingAlreadyCalled();
     /// Sender is not beneficiary
     error SenderNotBeneficiary();
+    /// Owner cannot be beneficiary
+    error OwnerCannotBeBeneficiary();
     /// Sender is not adminRecovery
     error SenderNotAdminRecovery();
 
@@ -136,6 +140,8 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         uint256 whitelistMintDurationSeconds,
         address payable beneficiaryAddress_
     ) ERC721("Pixelmind Collector's Pass", "PX PASS") MerkleValidator(merkleroot_) {
+        if (mintPriceWei_ < MIN_MINT_PRICE_WEI) revert MintPriceTooLow();
+        if (beneficiaryAddress_ == msg.sender) revert OwnerCannotBeBeneficiary();
         baseTokenURI = baseTokenURI_;
         maxSupply = maxSupply_;
         mintPriceWei = mintPriceWei_;
