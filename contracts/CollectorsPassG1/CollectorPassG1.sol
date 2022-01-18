@@ -4,18 +4,41 @@ pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./MerkleValidator.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract MerkleValidator {
+    // The root of Merkle tree for all whitelisted addresses.
+    bytes32 public immutable merkleroot;
+
+    /// Caller not whitelisted or invalid Merkle proof provided.
+    error InvalidMerkleProof(address caller);
+
+    // Verifies `msg.sender` address to see if valid leaf node of `merkleroot`.
+    modifier senderWhitelisted(bytes32[] calldata proof) {
+        if (!_verify(_leaf(msg.sender), proof)) revert InvalidMerkleProof({ caller: msg.sender });
+        _;
+    }
+
+    constructor(bytes32 merkleroot_) {
+        merkleroot = merkleroot_;
+    }
+
+    // Returns `keccak256` hash of provided address.
+    function _leaf(address account) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(account));
+    }
+
+    // Verifies `proof` to see if `leaf` valid node of `merkleroot`.
+    function _verify(bytes32 leaf, bytes32[] memory proof) internal view returns (bool) {
+        return MerkleProof.verify(proof, merkleroot, leaf);
+    }
+}
 
 contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator, Ownable, Pausable {
     // Use OpenZeppelin's Counters to generate token ids.
     using Counters for Counters.Counter;
-
-    // ============ Constants ============
-
-    // The minimum amount of ETH for setting valid token price; 0.1 ETH.
-    uint256 public constant MIN_MINT_PRICE_WEI = 100000000000000000;
 
     // ============ Immutable Storage ============
 
@@ -24,7 +47,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     // The maximum number of tokens this contract can create.
     uint256 public immutable maxSupply;
     // The price set to mint a token in Wei; must represent at least 0.1 ETH.
-    uint256 public immutable mintPriceWei;
+    uint256 public immutable mintPriceWei = 100000000000000000;
     // Timestamp representing beginning of whitelist mint window.
     uint256 public immutable whitelistNotBeforeTime;
     // Timestamp representing end of whitelist mint window.
@@ -34,15 +57,15 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
 
     /**
      * In order to open minting to anyone, contract owner must
-     * first call `setOpenMintActive()`, which sets `_openMintActive`.
+     * first call `setOpenMintActive()`, which sets `openMintActive`.
      */
-    bool private _openMintActive;
+    bool public openMintActive;
     /**
-     * By calling `endAllMinting()`, value for `_allMintingEnded` will
+     * By calling `endAllMinting()`, value for `allMintingIsEnded` will
      * be set to `true`. Once set, this value cannot be unset,
-     * and locks all whitelist and open minting for the contract permanently.
+     * and locks all remaining minting for the contract permanently.
      */
-    bool private _allMintingEnded;
+    bool public allMintingIsEnded;
     // Points to resource which returns token metadata.
     string public baseTokenURI;
     // Next token id to be set; initially incremented to `1`.
@@ -89,7 +112,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     // ============ Modifiers ============
 
     modifier allMintingNotEnded() {
-        if (_allMintingEnded) revert AllMintingAlreadyEnded();
+        if (allMintingIsEnded) revert AllMintingAlreadyEnded();
         _;
     }
 
@@ -105,7 +128,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     }
 
     modifier openMintingActive() {
-        if (!_openMintActive) revert OpenMintNotActive();
+        if (!openMintActive) revert OpenMintNotActive();
         _;
     }
 
@@ -135,18 +158,15 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
         string memory baseTokenURI_,
         uint256 maxSupply_,
         bytes32 merkleroot_,
-        uint256 mintPriceWei_,
         uint256 whitelistNotBeforeTime_,
         uint256 whitelistMintDurationSeconds,
         address payable beneficiaryAddress_
     ) ERC721("Pixelmind Collector's Pass", "PX PASS") MerkleValidator(merkleroot_) {
-        if (mintPriceWei_ < MIN_MINT_PRICE_WEI) revert MintPriceTooLow();
         if (beneficiaryAddress_ == msg.sender) revert OwnerCannotBeBeneficiary();
         baseTokenURI = baseTokenURI_;
         maxSupply = maxSupply_;
-        mintPriceWei = mintPriceWei_;
         whitelistNotBeforeTime = whitelistNotBeforeTime_;
-        whitelistMintEndTime = block.timestamp + whitelistMintDurationSeconds;
+        whitelistMintEndTime = whitelistNotBeforeTime_ + whitelistMintDurationSeconds;
         beneficiaryAddress = beneficiaryAddress_;
         _tokenIds.increment();
     }
@@ -200,7 +220,7 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     // ============ Private Functions ============
 
     function _redeem() private notAlreadyClaimed maxSupplyNotReached {
-        uint256 tokenId = _tokenIds.current();
+        uint256 tokenId = 420 + _tokenIds.current();
         _tokenIds.increment();
         _safeMint(msg.sender, tokenId);
         emit PassClaimed();
@@ -209,13 +229,13 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     // ============ Owner Functions ============
 
     function setOpenMintActive() external onlyOwner whenNotPaused whitelistMintEnded {
-        _openMintActive = true;
+        openMintActive = true;
         emit OpenMintActivated();
     }
 
-    function endAllMinting() external onlyOwner whenNotPaused whitelistMintEnded {
-        if (_allMintingEnded) revert EndAllMintingAlreadyCalled();
-        _allMintingEnded = true;
+    function endAllMinting() external onlyOwner whitelistMintEnded {
+        if (allMintingIsEnded) revert EndAllMintingAlreadyCalled();
+        allMintingIsEnded = true;
         emit AllMintingEnded();
     }
 
@@ -246,9 +266,23 @@ contract CollectorsPassG1 is ERC721URIStorage, ERC721Enumerable, MerkleValidator
     function checkWhitelistRedeem(bytes32[] calldata proof)
         external
         view
+        whenNotPaused
         allMintingNotEnded
         whitelistMintActive
         senderWhitelisted(proof)
+        notAlreadyClaimed
+        maxSupplyNotReached
+        returns (bool)
+    {
+        return true;
+    }
+
+    function checkOpenRedeem()
+        external
+        view
+        whenNotPaused
+        allMintingNotEnded
+        openMintingActive
         notAlreadyClaimed
         maxSupplyNotReached
         returns (bool)
