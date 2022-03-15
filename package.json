@@ -78,6 +78,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
+    "@openzeppelin/contracts-upgradeable": "^4.5.1",
     "keccak256": "^1.0.3",
     "merkletreejs": "^0.2.27"
   }
