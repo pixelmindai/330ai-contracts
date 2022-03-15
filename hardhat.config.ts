@@ -83,6 +83,9 @@ const config: HardhatUserConfig = {
       {
         version: "0.8.11",
       },
+      {
+        version: "0.8.12",
+      },
     ],
     settings: {
       metadata: {
