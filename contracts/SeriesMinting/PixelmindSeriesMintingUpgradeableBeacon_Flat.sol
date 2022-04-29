@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-// File @openzeppelin/contracts/proxy/beacon/IBeacon.sol@v4.5.0
+// Sources flattened with hardhat v2.7.0 https://hardhat.org
 
-// OpenZeppelin Contracts v4.4.1 (proxy/beacon/IBeacon.sol)
+// File @openzeppelin/contracts/proxy/beacon/IBeacon.sol@v4.4.0
+
+// OpenZeppelin Contracts v4.4.0 (proxy/beacon/IBeacon.sol)
 
 pragma solidity ^0.8.0;
 
@@ -18,9 +20,9 @@ interface IBeacon {
     function implementation() external view returns (address);
 }
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.5.0
+// File @openzeppelin/contracts/utils/Context.sol@v4.4.0
 
-// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+// OpenZeppelin Contracts v4.4.0 (utils/Context.sol)
 
 pragma solidity ^0.8.0;
 
@@ -44,9 +46,9 @@ abstract contract Context {
     }
 }
 
-// File @openzeppelin/contracts/access/Ownable.sol@v4.5.0
+// File @openzeppelin/contracts/access/Ownable.sol@v4.4.0
 
-// OpenZeppelin Contracts v4.4.1 (access/Ownable.sol)
+// OpenZeppelin Contracts v4.4.0 (access/Ownable.sol)
 
 pragma solidity ^0.8.0;
 
@@ -120,11 +122,11 @@ abstract contract Ownable is Context {
     }
 }
 
-// File @openzeppelin/contracts/utils/Address.sol@v4.5.0
+// File @openzeppelin/contracts/utils/Address.sol@v4.4.0
 
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/Address.sol)
+// OpenZeppelin Contracts v4.4.0 (utils/Address.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.0;
 
 /**
  * @dev Collection of functions related to the address type
@@ -146,22 +148,17 @@ library Address {
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
      * ====
-     *
-     * [IMPORTANT]
-     * ====
-     * You shouldn't rely on `isContract` to protect against flash loan attacks!
-     *
-     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
-     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
-     * constructor.
-     * ====
      */
     function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize/address.code.length, which returns 0
-        // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution.
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
 
-        return account.code.length > 0;
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
     }
 
     /**
@@ -344,9 +341,9 @@ library Address {
     }
 }
 
-// File @openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol@v4.5.0
+// File @openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol@v4.4.0
 
-// OpenZeppelin Contracts v4.4.1 (proxy/beacon/UpgradeableBeacon.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/beacon/UpgradeableBeacon.sol)
 
 pragma solidity ^0.8.0;
 
@@ -407,9 +404,9 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     }
 }
 
-// File @openzeppelin/contracts/proxy/Proxy.sol@v4.5.0
+// File @openzeppelin/contracts/proxy/Proxy.sol@v4.4.0
 
-// OpenZeppelin Contracts (last updated v4.5.0) (proxy/Proxy.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/Proxy.sol)
 
 pragma solidity ^0.8.0;
 
@@ -427,7 +424,7 @@ abstract contract Proxy {
     /**
      * @dev Delegates the current call to `implementation`.
      *
-     * This function does not return to its internal call site, it will return directly to the external caller.
+     * This function does not return to its internall call site, it will return directly to the external caller.
      */
     function _delegate(address implementation) internal virtual {
         assembly {
@@ -495,31 +492,9 @@ abstract contract Proxy {
     function _beforeFallback() internal virtual {}
 }
 
-// File @openzeppelin/contracts/interfaces/draft-IERC1822.sol@v4.5.0
+// File @openzeppelin/contracts/utils/StorageSlot.sol@v4.4.0
 
-// OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC1822.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev ERC1822: Universal Upgradeable Proxy Standard (UUPS) documents a method for upgradeability through a simplified
- * proxy whose upgrades are fully controlled by the current implementation.
- */
-interface IERC1822Proxiable {
-    /**
-     * @dev Returns the storage slot that the proxiable contract assumes is being used to store the implementation
-     * address.
-     *
-     * IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
-     * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
-     * function revert if invoked through a proxy.
-     */
-    function proxiableUUID() external view returns (bytes32);
-}
-
-// File @openzeppelin/contracts/utils/StorageSlot.sol@v4.5.0
-
-// OpenZeppelin Contracts v4.4.1 (utils/StorageSlot.sol)
+// OpenZeppelin Contracts v4.4.0 (utils/StorageSlot.sol)
 
 pragma solidity ^0.8.0;
 
@@ -603,9 +578,9 @@ library StorageSlot {
     }
 }
 
-// File @openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol@v4.5.0
+// File @openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol@v4.4.0
 
-// OpenZeppelin Contracts (last updated v4.5.0) (proxy/ERC1967/ERC1967Upgrade.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/ERC1967/ERC1967Upgrade.sol)
 
 pragma solidity ^0.8.2;
 
@@ -679,23 +654,33 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCallUUPS(
+    function _upgradeToAndCallSecure(
         address newImplementation,
         bytes memory data,
         bool forceCall
     ) internal {
-        // Upgrades from old implementations will perform a rollback test. This test requires the new
-        // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
-        // this special case will break upgrade paths from old UUPS implementation to new ones.
-        if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
-            _setImplementation(newImplementation);
-        } else {
-            try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
-            } catch {
-                revert("ERC1967Upgrade: new implementation is not UUPS");
-            }
-            _upgradeToAndCall(newImplementation, data, forceCall);
+        address oldImplementation = _getImplementation();
+
+        // Initial upgrade and setup call
+        _setImplementation(newImplementation);
+        if (data.length > 0 || forceCall) {
+            Address.functionDelegateCall(newImplementation, data);
+        }
+
+        // Perform rollback test if not already in progress
+        StorageSlot.BooleanSlot storage rollbackTesting = StorageSlot.getBooleanSlot(_ROLLBACK_SLOT);
+        if (!rollbackTesting.value) {
+            // Trigger rollback using upgradeTo from the new implementation
+            rollbackTesting.value = true;
+            Address.functionDelegateCall(
+                newImplementation,
+                abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
+            );
+            rollbackTesting.value = false;
+            // Check rollback was effective
+            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            // Finally reset to the new implementation and log the upgrade
+            _upgradeTo(newImplementation);
         }
     }
 
@@ -785,9 +770,9 @@ abstract contract ERC1967Upgrade {
     }
 }
 
-// File @openzeppelin/contracts/proxy/beacon/BeaconProxy.sol@v4.5.0
+// File @openzeppelin/contracts/proxy/beacon/BeaconProxy.sol@v4.4.0
 
-// OpenZeppelin Contracts v4.4.1 (proxy/beacon/BeaconProxy.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/beacon/BeaconProxy.sol)
 
 pragma solidity ^0.8.0;
 
@@ -845,22 +830,25 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
     }
 }
 
-// File contracts/PixelmindSeriesMintingUpgradeableBeacon.sol
+// File contracts/SeriesMinting/PixelmindSeriesMintingUpgradeableBeacon.sol
 
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.13;
 
 contract PixelmindSeriesMintingUpgradeableBeacon is UpgradeableBeacon {
-    address[] private series;
+    mapping(bytes32 => address) public series;
+
+    event NewSeriesCreated(bytes32 id, address series);
 
     constructor(address _implementation) UpgradeableBeacon(_implementation) {}
 
     function newSeries(
+        bytes32 id_,
         string memory name_,
         string memory symbol_,
         address admin_,
         address minter_,
         string memory baseTokenURI_
-    ) public returns (address) {
+    ) public {
         bytes memory data_ = abi.encodeWithSignature(
             "initialize(string,string,address,address,string)",
             name_,
@@ -871,13 +859,7 @@ contract PixelmindSeriesMintingUpgradeableBeacon is UpgradeableBeacon {
         );
         BeaconProxy seriesBeaconProxy = new BeaconProxy(address(this), data_);
         address seriesAddress = address(seriesBeaconProxy);
-        series.push(seriesAddress);
-        return seriesAddress;
-    }
-
-    function getSeriesAddresses() public view returns (address[] memory) {
-        return series;
+        series[id_] = seriesAddress;
+        emit NewSeriesCreated(id_, seriesAddress);
     }
 }
-
-// File contracts/PixelmindSeriesMintingUpgradeableBeacon_Flat.sol
