@@ -27,6 +27,7 @@ contract PixelmindSeriesMintingERC721Upgradeable is
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     CountersUpgradeable.Counter private _tokenIdCounter;
+    string private _contractURI;
     string private _baseTokenURI;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -37,6 +38,7 @@ contract PixelmindSeriesMintingERC721Upgradeable is
         string memory symbol_,
         address admin_,
         address minter_,
+        string memory contractURI_,
         string memory baseTokenURI_
     ) public initializer {
         __ERC721_init(name_, symbol_);
@@ -51,7 +53,12 @@ contract PixelmindSeriesMintingERC721Upgradeable is
         _grantRole(MINTER_ROLE, minter_);
         _grantRole(UPGRADER_ROLE, admin_);
 
+        _contractURI = contractURI_;
         _baseTokenURI = baseTokenURI_;
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
     }
 
     function _baseURI() internal view override returns (string memory) {

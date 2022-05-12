@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-// File @openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol@v4.5.2
+// Sources flattened with hardhat v2.7.0 https://hardhat.org
+
+// File @openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -27,7 +29,7 @@ interface IERC165Upgradeable {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/IERC721.sol)
 
@@ -170,7 +172,7 @@ interface IERC721Upgradeable is IERC165Upgradeable {
     ) external;
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/IERC721Receiver.sol)
 
@@ -199,7 +201,7 @@ interface IERC721ReceiverUpgradeable {
     ) external returns (bytes4);
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/IERC721Metadata.sol)
 
@@ -226,7 +228,7 @@ interface IERC721MetadataUpgradeable is IERC721Upgradeable {
     function tokenURI(uint256 tokenId) external view returns (string memory);
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (utils/Address.sol)
 
@@ -423,7 +425,7 @@ library AddressUpgradeable {
     }
 }
 
-// File @openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (proxy/utils/Initializable.sol)
 
@@ -503,7 +505,7 @@ abstract contract Initializable {
     }
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -540,7 +542,7 @@ abstract contract ContextUpgradeable is Initializable {
     uint256[50] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Strings.sol)
 
@@ -609,7 +611,7 @@ library StringsUpgradeable {
     }
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
 
@@ -649,7 +651,7 @@ abstract contract ERC165Upgradeable is Initializable, IERC165Upgradeable {
     uint256[50] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/ERC721.sol)
 
@@ -1115,7 +1117,7 @@ contract ERC721Upgradeable is
     uint256[44] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
 
@@ -1144,7 +1146,7 @@ interface IERC721EnumerableUpgradeable is IERC721Upgradeable {
     function tokenByIndex(uint256 index) external view returns (uint256);
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/ERC721Enumerable.sol)
 
@@ -1323,7 +1325,7 @@ abstract contract ERC721EnumerableUpgradeable is Initializable, ERC721Upgradeabl
     uint256[46] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/ERC721URIStorage.sol)
 
@@ -1401,7 +1403,7 @@ abstract contract ERC721URIStorageUpgradeable is Initializable, ERC721Upgradeabl
     uint256[49] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (security/Pausable.sol)
 
@@ -1503,7 +1505,7 @@ abstract contract PausableUpgradeable is Initializable, ContextUpgradeable {
     uint256[49] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
 
@@ -1593,7 +1595,7 @@ interface IAccessControlUpgradeable {
     function renounceRole(bytes32 role, address account) external;
 }
 
-// File @openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (access/AccessControl.sol)
 
@@ -1829,7 +1831,7 @@ abstract contract AccessControlUpgradeable is
     uint256[49] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/interfaces/draft-IERC1822Upgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/interfaces/draft-IERC1822Upgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC1822.sol)
 
@@ -1851,7 +1853,7 @@ interface IERC1822ProxiableUpgradeable {
     function proxiableUUID() external view returns (bytes32);
 }
 
-// File @openzeppelin/contracts-upgradeable/proxy/beacon/IBeaconUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/proxy/beacon/IBeaconUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (proxy/beacon/IBeacon.sol)
 
@@ -1869,7 +1871,7 @@ interface IBeaconUpgradeable {
     function implementation() external view returns (address);
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/StorageSlot.sol)
 
@@ -1955,7 +1957,7 @@ library StorageSlotUpgradeable {
     }
 }
 
-// File @openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (proxy/ERC1967/ERC1967Upgrade.sol)
 
@@ -2162,7 +2164,7 @@ abstract contract ERC1967UpgradeUpgradeable is Initializable {
     uint256[50] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts (last updated v4.5.0) (proxy/utils/UUPSUpgradeable.sol)
 
@@ -2267,7 +2269,7 @@ abstract contract UUPSUpgradeable is Initializable, IERC1822ProxiableUpgradeable
     uint256[50] private __gap;
 }
 
-// File @openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol@v4.5.2
+// File @openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol@v4.5.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Counters.sol)
 
@@ -2312,7 +2314,7 @@ library CountersUpgradeable {
     }
 }
 
-// File contracts/PixelmindSeriesMintingERC721Upgradeable.sol
+// File contracts/SeriesMinting/PixelmindSeriesMintingERC721Upgradeable.sol
 
 pragma solidity ^0.8.12;
 
@@ -2333,6 +2335,7 @@ contract PixelmindSeriesMintingERC721Upgradeable is
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     CountersUpgradeable.Counter private _tokenIdCounter;
+    string private _contractURI;
     string private _baseTokenURI;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -2343,6 +2346,7 @@ contract PixelmindSeriesMintingERC721Upgradeable is
         string memory symbol_,
         address admin_,
         address minter_,
+        string memory contractURI_,
         string memory baseTokenURI_
     ) public initializer {
         __ERC721_init(name_, symbol_);
@@ -2357,7 +2361,12 @@ contract PixelmindSeriesMintingERC721Upgradeable is
         _grantRole(MINTER_ROLE, minter_);
         _grantRole(UPGRADER_ROLE, admin_);
 
+        _contractURI = contractURI_;
         _baseTokenURI = baseTokenURI_;
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
     }
 
     function _baseURI() internal view override returns (string memory) {
@@ -2411,5 +2420,3 @@ contract PixelmindSeriesMintingERC721Upgradeable is
         return super.supportsInterface(interfaceId);
     }
 }
-
-// File contracts/PixelmindSeriesMintingERC721Upgradeable_Flat.sol

@@ -17,14 +17,16 @@ contract PixelmindSeriesMintingUpgradeableBeacon is UpgradeableBeacon {
         string memory symbol_,
         address admin_,
         address minter_,
+        string memory contractURI_,
         string memory baseTokenURI_
     ) public {
         bytes memory data_ = abi.encodeWithSignature(
-            "initialize(string,string,address,address,string)",
+            "initialize(string,string,address,address,string,string)",
             name_,
             symbol_,
             admin_,
             minter_,
+            contractURI_,
             baseTokenURI_
         );
         BeaconProxy seriesBeaconProxy = new BeaconProxy(address(this), data_);
