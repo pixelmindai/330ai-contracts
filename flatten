@@ -1,0 +1,22 @@
+#!/bin/sh
+flatten()
+{
+    f=$1
+    echo $f
+    FLAT="${f%.sol}_Flat.sol"
+    npx hardhat flatten "$f" > "$FLAT"
+    sed -i 's/\/\/ SPDX-License-Identifier: MIT//g' "$FLAT"
+    echo $'// SPDX-License-Identifier: MIT\n' | cat - "$FLAT" > temp && mv temp "$FLAT"
+    npx prettier "$FLAT" --write
+}
+
+if [ $# -eq 0 ]
+  then
+    for f in $(find ./contracts -type f -name *.sol | grep -v Flat); do
+        flatten $f
+    done
+  else
+    for f in "$@"; do
+        flatten $f
+    done
+fi
